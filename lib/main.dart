@@ -28,6 +28,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const nonAlphanumericRegex = r'([^a-zA-Z0-9])';
+  static const lowerLetterNumberAndUpperLetterRegex = r'(?<=[a-z0-9])(?=[A-Z])';
+
   final TextEditingController _inputController = TextEditingController();
   String firstLetterUppercaseCamel = '';
   String firstLetterLowercaseCamel = '';
@@ -224,8 +227,10 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Center(
-              child: Text(
-                'Tip: The tool will automatically filter out non-alphanumeric characters in the original text and convert them to spaces. Click the corresponding button to copy the result.',
+              child: Center(
+                child: Text(
+                  'Tip: The tool will automatically filter out non-alphanumeric characters in the original text and convert them to spaces. Click the corresponding button to copy the result.',
+                ),
               ),
             ),
           ],
@@ -236,30 +241,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onSubmit() {
     final words = _inputController.text.split(
-      RegExp(r'([^a-zA-Z0-9])|(?<=[a-z0-9])(?=[A-Z])'),
+      RegExp('$nonAlphanumericRegex|$lowerLetterNumberAndUpperLetterRegex'),
     );
     for (int i = 0; i < words.length; i++) {
-      words[i] = words[i].toLowerCase().capitalizeFirstLetter();
+      words[i] = words[i].toLowerCase().uppercaseFirstLetter();
     }
     setState(() {
       firstLetterUppercaseCamel = words.join('');
-      firstLetterLowercaseCamel =
-          '${words[0].toLowerCase()}${words.skip(1).join('')}';
+      firstLetterLowercaseCamel = words.join('').lowercaseFirstLetter();
       allLettersUppercaseCamel = words.map((x) => x.toUpperCase()).join('');
       allLettersLowercaseCamel = words.map((x) => x.toLowerCase()).join('');
       firstLetterUppercaseSnake = words.join('_');
-      firstLetterLowercaseSnake =
-          '${words[0].toLowerCase()}_${words.skip(1).join('_')}';
+      firstLetterLowercaseSnake = words.join('_').lowercaseFirstLetter();
       allLettersUppercaseSnake = words.map((x) => x.toUpperCase()).join('_');
       allLettersLowercaseSnake = words.map((x) => x.toLowerCase()).join('_');
       firstLetterUppercaseKebab = words.join('-');
-      firstLetterLowercaseKebab =
-          '${words[0].toLowerCase()}-${words.skip(1).join('-')}';
+      firstLetterLowercaseKebab = words.join('-').lowercaseFirstLetter();
       allLettersUppercaseKebab = words.map((x) => x.toUpperCase()).join('-');
       allLettersLowercaseKebab = words.map((x) => x.toLowerCase()).join('-');
       firstLetterUppercaseSpace = words.join(' ');
-      firstLetterLowercaseSpace =
-          '${words[0].toLowerCase()} ${words.skip(1).join(' ')}';
+      firstLetterLowercaseSpace = words.join(' ').lowercaseFirstLetter();
       allLettersUppercaseSpace = words.map((x) => x.toUpperCase()).join(' ');
       allLettersLowercaseSpace = words.map((x) => x.toLowerCase()).join(' ');
     });
@@ -268,17 +269,24 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _copy(String value) async {
     final messenger = ScaffoldMessenger.of(context);
     await Clipboard.setData(ClipboardData(text: value));
-    const snackBar = SnackBar(content: Text('Copied'));
+    const snackBar = SnackBar(content: Center(child: Text('Copied')));
     messenger.clearSnackBars();
     messenger.showSnackBar(snackBar);
   }
 }
 
 extension StringExtension on String {
-  String capitalizeFirstLetter() {
+  String uppercaseFirstLetter() {
     if (isEmpty) {
       return this;
     }
     return this[0].toUpperCase() + substring(1);
+  }
+
+  String lowercaseFirstLetter() {
+    if (isEmpty) {
+      return this;
+    }
+    return this[0].toLowerCase() + substring(1);
   }
 }
